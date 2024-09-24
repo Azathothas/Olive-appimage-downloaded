@@ -86,8 +86,8 @@ jobs:
             echo -e "" >> "/tmp/RELEASE_NOTE.md"
           continue-on-error: true
 
-        #Release
-        - name: Releaser
+        #Continuous Release
+        - name: Continuous Releaser
           if: env.HAS_RELEASE == 'TRUE'
           uses: softprops/action-gh-release@v2
           with:
@@ -96,8 +96,25 @@ jobs:
             prerelease: false
             draft: false
             generate_release_notes: false
+            make_latest: true
             body_path: "/tmp/RELEASE_NOTE.md"
             files: |
               /tmp/RELEASES/*
           continue-on-error: false
+
+      #Snapshot
+        - name: Snapshot Releaser
+          if: env.HAS_RELEASE == 'TRUE'
+          uses: softprops/action-gh-release@v2
+          with:
+            name: "[SNAPSHOT] Olive AppImage (${{ env.PKG_VERSION}})"
+            tag_name: "${{ env.PKG_VERSION}}"
+            prerelease: false
+            draft: false
+            generate_release_notes: false
+            make_latest: false
+            body_path: "/tmp/RELEASE_NOTE.md"
+            files: |
+              /tmp/RELEASES/*
+          continue-on-error: true
 #------------------------------------------------------------------------------------#
