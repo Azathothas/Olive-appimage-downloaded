@@ -43,7 +43,9 @@ jobs:
             DOWNLOAD_URL="$(curl -qfsSL "https://api.github.com/repos/olive-editor/olive/actions/artifacts?per_page=100" -H "Authorization: Bearer ${GITHUB_TOKEN}" | jq -r '[.artifacts[] | select(.name | test("Linux-x86_64"))] | sort_by(.created_at) | .[].archive_download_url' | tail -n 1)" && export DOWNLOAD_URL="${DOWNLOAD_URL}"
             #Created_Date
             PKG_VERSION="$(curl -qfsSL "https://api.github.com/repos/olive-editor/olive/actions/artifacts?per_page=100" -H "Authorization: Bearer ${GITHUB_TOKEN}" | jq -r --arg url "${DOWNLOAD_URL}" '.artifacts[] | select(.archive_download_url == $url) | .created_at')" && export PKG_VERSION="${PKG_VERSION}"
-            echo "PKG_VERSION=$PKG_VERSION" >> "${GITHUB_ENV}"
+            echo "PKG_VERSION=${PKG_VERSION}" >> "${GITHUB_ENV}"
+            SNAPSHOT_VERSION="$(echo -n "${PKG_VERSION}" | tr -c '[:alnum:]' '_')" && export SNAPSHOT_VERSION="${SNAPSHOT_VERSION}"
+            echo "SNAPSHOT_VERSION=${SNAPSHOT_VERSION}" >> "${GITHUB_ENV}"
             #Download
             curl -qfsSL "${DOWNLOAD_URL}" -H "Authorization: Bearer ${GITHUB_TOKEN}" -o "./olive.zip" && unzip "./olive.zip"
             find . -type f -iname '*olive*' ! -name '*.zip*' -exec cp {} "/tmp/RELEASES/" \;
@@ -110,7 +112,7 @@ jobs:
           uses: softprops/action-gh-release@v2
           with:
             name: "[SNAPSHOT] Olive AppImage (${{ env.PKG_VERSION}})"
-            tag_name: "${{ env.PKG_VERSION}}"
+            tag_name: "${{ env.SNAPSHOT_VERSION}}"
             prerelease: false
             draft: false
             generate_release_notes: false
