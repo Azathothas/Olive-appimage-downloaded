@@ -43,7 +43,7 @@ jobs:
             DOWNLOAD_URL="$(curl -qfsSL "https://api.github.com/repos/olive-editor/olive/actions/artifacts?per_page=100" -H "Authorization: Bearer ${GITHUB_TOKEN}" | jq -r '[.artifacts[] | select(.name | test("Linux-x86_64"))] | sort_by(.created_at) | .[].archive_download_url' | tail -n 1)" && export DOWNLOAD_URL="${DOWNLOAD_URL}"
             #Created_Date
             PKG_VERSION="$(curl -qfsSL "https://api.github.com/repos/olive-editor/olive/actions/artifacts?per_page=100" -H "Authorization: Bearer ${GITHUB_TOKEN}" | jq -r --arg url "${DOWNLOAD_URL}" '.artifacts[] | select(.archive_download_url == $url) | .created_at')" && export PKG_VERSION="${PKG_VERSION}"
-            echo "PKG_VERSION=$PKG_VERSION" >> "$GITHUB_ENV"
+            echo "PKG_VERSION=$PKG_VERSION" >> "${GITHUB_ENV}"
             #Download
             curl -qfsSL "${DOWNLOAD_URL}" -H "Authorization: Bearer ${GITHUB_TOKEN}" -o "./olive.zip" && unzip "./olive.zip"
             find . -type f -iname '*olive*' ! -name '*.zip*' -exec cp {} "/tmp/RELEASES/" \;
@@ -58,10 +58,12 @@ jobs:
                  find "./" -maxdepth 1 -type f ! -iname '*.txt' | xargs file | sort -u | tee "/tmp/RELEASES/FILE.txt"
                  find "./" -maxdepth 1 -type f ! -iname '*.txt' | xargs du -sh
                  export HAS_RELEASE="TRUE"
-                 echo "HAS_RELEASE=$HAS_RELEASE" >> "$GITHUB_ENV"
+                 echo "HAS_RELEASE=$HAS_RELEASE" >> "${GITHUB_ENV}"
+                 UTC_TIME="$(TZ='UTC' date +'%Y_%m_%d')"
+                 echo "UTC_TIME=${UTC_TIME}" >> "${GITHUB_ENV}"
               else
                  export HAS_RELEASE="FALSE"
-                 echo "HAS_RELEASE=$HAS_RELEASE" >> "$GITHUB_ENV"
+                 echo "HAS_RELEASE=$HAS_RELEASE" >> "${GITHUB_ENV}"
                  exit 1
             fi
           continue-on-error: true
@@ -100,7 +102,7 @@ jobs:
             body_path: "/tmp/RELEASE_NOTE.md"
             files: |
               /tmp/RELEASES/*
-          continue-on-error: false
+          continue-on-error: true
 
       #Snapshot
         - name: Snapshot Releaser
@@ -108,7 +110,7 @@ jobs:
           uses: softprops/action-gh-release@v2
           with:
             name: "[SNAPSHOT] Olive AppImage (${{ env.PKG_VERSION}})"
-            tag_name: "${{ env.PKG_VERSION}}"
+            tag_name: "${{ env.UTC_TIME }}"
             prerelease: false
             draft: false
             generate_release_notes: false
