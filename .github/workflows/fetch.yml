@@ -96,6 +96,7 @@ jobs:
             prerelease: false
             draft: false
             generate_release_notes: false
+            body_path: "/tmp/RELEASE_NOTE.md"
             files: |
               /tmp/RELEASES/*
           continue-on-error: false
