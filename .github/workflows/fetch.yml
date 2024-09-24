@@ -110,7 +110,7 @@ jobs:
           uses: softprops/action-gh-release@v2
           with:
             name: "[SNAPSHOT] Olive AppImage (${{ env.PKG_VERSION}})"
-            tag_name: "${{ env.UTC_TIME }}"
+            tag_name: "${{ env.PKG_VERSION}}"
             prerelease: false
             draft: false
             generate_release_notes: false
