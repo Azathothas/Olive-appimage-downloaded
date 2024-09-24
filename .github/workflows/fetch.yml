@@ -9,8 +9,7 @@ jobs:
     fetch-appimage:
       name: Fetch Olive AppImage
       runs-on: ubuntu-latest
-      permissions:
-        contents: write-all #Required for Releases and also to download Artifacts from GH Releases
+      permissions: write-all #Required for Releases and also to download Artifacts from GH Releases
       
       steps:
         - name: Checkout repository
